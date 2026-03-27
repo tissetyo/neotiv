@@ -130,3 +130,30 @@ The following webp recording captures the seamless visual interaction and render
 | **Arrow key navigation** | ✅ Pass | Focus moves between all tiles via D-pad |
 | **Services visible** | ✅ Pass | Food, Spa, Transport, Laundry icons fully visible |
 | **Night mode** | ✅ Pass | Dark overlay active after 6 PM |
+
+---
+
+# Deployment Guide (Vercel)
+
+Since this is a **pnpm + Turborepo** monorepo, you should deploy each of the three applications as a **separate project** on Vercel using the following settings:
+
+### 1. General Settings
+- **Framework Preset**: `Next.js`
+- **Build Step**: Vercel will automatically detect `pnpm` and `turbo`.
+
+### 2. Project Specifics
+
+| Application | Root Directory | Build Command (Override) |
+| :--- | :--- | :--- |
+| **TV Dashboard** | `apps/tv-dashboard` | `cd ../.. && npx turbo build --filter=@neotiv/tv-dashboard` |
+| **Front Office** | `apps/frontoffice` | `cd ../.. && npx turbo build --filter=@neotiv/frontoffice` |
+| **Management** | `apps/management` | `cd ../.. && npx turbo build --filter=@neotiv/management` |
+
+### 3. Environment Variables
+For all three projects, ensure you add the following in **Settings > Environment Variables**:
+- `NEXT_PUBLIC_SUPABASE_URL`: [Your Supabase URL]
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: [Your Supabase Anon Key]
+
+> [!TIP]
+> Each application can be assigned its own domain (e.g., `tv.neotiv.com`, `staff.neotiv.com`, `admin.neotiv.com`) while sharing the same underlying Supabase backend.
+
