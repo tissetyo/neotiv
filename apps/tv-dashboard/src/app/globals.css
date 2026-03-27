@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #0D7377;
+  --primary-light: #14BDAC;
+  --surface-dark: rgba(0, 0, 0, 0.45);
+  --surface-border: rgba(255, 255, 255, 0.15);
+  --text-primary: #FFFFFF;
+  --text-muted: rgba(255, 255, 255, 0.65);
+  --notification-red: #FF4757;
+  --success: #2ED573;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-primary);
+  background-color: #0A0F14;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+@layer utilities {
+  .glass-card {
+    @apply backdrop-blur-xl border rounded-2xl p-4;
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 cursor-pointer;
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .glass-card-hover:focus, .focus-tv[data-sn-focused="true"] {
+    @apply outline-none ring-4 ring-white ring-offset-0 ring-offset-transparent transition-all duration-300;
+    border-color: rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    z-index: 50;
+  }
+
+  .glass-card-hover:focus {
+    @apply outline-none ring-2 ring-primary ring-offset-0;
+    border-color: rgba(13, 115, 119, 0.6);
+  }
+
+  .widget-title {
+    @apply text-xs font-semibold uppercase tracking-widest mb-2 block;
+    color: rgba(255, 255, 255, 0.45);
+    border-left: 2px solid var(--primary);
+    padding-left: 8px;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #14BDAC 0%, #0D7377 100%);
+  }
+}

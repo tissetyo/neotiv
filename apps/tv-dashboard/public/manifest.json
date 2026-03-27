@@ -1,0 +1,22 @@
+{
+  "name": "Neotiv TV",
+  "short_name": "Neotiv",
+  "description": "Smart Hotel Room Dashboard",
+  "start_url": "/dashboard",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "theme_color": "#0D7377",
+  "background_color": "#0a0f14",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
