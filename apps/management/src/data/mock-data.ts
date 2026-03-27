@@ -1,5 +1,7 @@
 import { Room, RoomType, GuestSession, User } from '@neotiv/types'
 
+const NOW = new Date().toISOString()
+
 // Mock Hotels
 export const mockHotels = [
   {
@@ -42,7 +44,9 @@ export const mockRoomTypes: Record<string, RoomType> = {
     name: 'Standard Room',
     description: 'Comfortable room with essential amenities.',
     basePrice: 150,
-    capacity: 2
+    capacity: 2,
+    createdAt: NOW,
+    updatedAt: NOW,
   },
   'rt-dlx': {
     id: 'rt-dlx',
@@ -50,7 +54,9 @@ export const mockRoomTypes: Record<string, RoomType> = {
     name: 'Deluxe Ocean View',
     description: 'Spacious room featuring a balcony with panoramic ocean views.',
     basePrice: 280,
-    capacity: 3
+    capacity: 3,
+    createdAt: NOW,
+    updatedAt: NOW,
   },
   'rt-ste': {
     id: 'rt-ste',
@@ -58,18 +64,20 @@ export const mockRoomTypes: Record<string, RoomType> = {
     name: 'Presidential Suite',
     description: 'Luxury suite with separate living area, premium bar, and jacuzzi.',
     basePrice: 850,
-    capacity: 4
+    capacity: 4,
+    createdAt: NOW,
+    updatedAt: NOW,
   }
 }
 
 // Mock Rooms (Grand Sapphire)
 export const mockRooms: Room[] = [
-  { id: 'rm-101', hotelId: 'h-grand-sapphire', number: '101', floor: 1, roomTypeId: 'rt-std', status: 'available', roomType: mockRoomTypes['rt-std'] },
-  { id: 'rm-102', hotelId: 'h-grand-sapphire', number: '102', floor: 1, roomTypeId: 'rt-std', status: 'occupied', roomType: mockRoomTypes['rt-std'] },
-  { id: 'rm-103', hotelId: 'h-grand-sapphire', number: '103', floor: 1, roomTypeId: 'rt-std', status: 'maintenance', roomType: mockRoomTypes['rt-std'] },
-  { id: 'rm-201', hotelId: 'h-grand-sapphire', number: '201', floor: 2, roomTypeId: 'rt-dlx', status: 'occupied', roomType: mockRoomTypes['rt-dlx'] },
-  { id: 'rm-202', hotelId: 'h-grand-sapphire', number: '202', floor: 2, roomTypeId: 'rt-dlx', status: 'available', roomType: mockRoomTypes['rt-dlx'] },
-  { id: 'rm-301', hotelId: 'h-grand-sapphire', number: '301', floor: 3, roomTypeId: 'rt-ste', status: 'occupied', roomType: mockRoomTypes['rt-ste'] }
+  { id: 'rm-101', hotelId: 'h-grand-sapphire', number: '101', floor: 1, roomTypeId: 'rt-std', status: 'available', deletedAt: null, roomType: mockRoomTypes['rt-std'], createdAt: NOW, updatedAt: NOW },
+  { id: 'rm-102', hotelId: 'h-grand-sapphire', number: '102', floor: 1, roomTypeId: 'rt-std', status: 'occupied',  deletedAt: null, roomType: mockRoomTypes['rt-std'], createdAt: NOW, updatedAt: NOW },
+  { id: 'rm-103', hotelId: 'h-grand-sapphire', number: '103', floor: 1, roomTypeId: 'rt-std', status: 'maintenance', deletedAt: null, roomType: mockRoomTypes['rt-std'], createdAt: NOW, updatedAt: NOW },
+  { id: 'rm-201', hotelId: 'h-grand-sapphire', number: '201', floor: 2, roomTypeId: 'rt-dlx', status: 'occupied',  deletedAt: null, roomType: mockRoomTypes['rt-dlx'], createdAt: NOW, updatedAt: NOW },
+  { id: 'rm-202', hotelId: 'h-grand-sapphire', number: '202', floor: 2, roomTypeId: 'rt-dlx', status: 'available', deletedAt: null, roomType: mockRoomTypes['rt-dlx'], createdAt: NOW, updatedAt: NOW },
+  { id: 'rm-301', hotelId: 'h-grand-sapphire', number: '301', floor: 3, roomTypeId: 'rt-ste', status: 'occupied',  deletedAt: null, roomType: mockRoomTypes['rt-ste'], createdAt: NOW, updatedAt: NOW },
 ]
 
 // Mock Staff
@@ -78,9 +86,11 @@ export const mockStaff: User[] = [
     id: 'usr-admin-1',
     email: 'admin@neotiv.com',
     role: 'super_admin',
+    hotelId: null,
     firstName: 'System',
     lastName: 'Admin',
-    createdAt: new Date().toISOString()
+    createdAt: NOW,
+    updatedAt: NOW,
   },
   {
     id: 'usr-gm-1',
@@ -89,7 +99,8 @@ export const mockStaff: User[] = [
     hotelId: 'h-grand-sapphire',
     firstName: 'Marcus',
     lastName: 'Chen',
-    createdAt: new Date().toISOString()
+    createdAt: NOW,
+    updatedAt: NOW,
   },
   {
     id: 'usr-fo-1',
@@ -98,7 +109,8 @@ export const mockStaff: User[] = [
     hotelId: 'h-grand-sapphire',
     firstName: 'Jane',
     lastName: 'Doe',
-    createdAt: new Date().toISOString()
+    createdAt: NOW,
+    updatedAt: NOW,
   },
   {
     id: 'usr-fo-2',
@@ -107,6 +119,7 @@ export const mockStaff: User[] = [
     hotelId: 'h-grand-sapphire',
     firstName: 'Michael',
     lastName: 'Smith',
-    createdAt: new Date().toISOString()
+    createdAt: NOW,
+    updatedAt: NOW,
   }
 ]

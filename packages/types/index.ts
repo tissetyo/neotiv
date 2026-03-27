@@ -41,6 +41,8 @@ export type RoomType = BaseEntity & {
   hotelId: string
   name: string
   description: string | null
+  basePrice: number
+  capacity: number
 }
 
 export type Room = BaseEntity & {
@@ -58,6 +60,9 @@ export type Room = BaseEntity & {
 export type User = BaseEntity & {
   email: string
   role: UserRole
+  hotelId: string | null
+  firstName: string
+  lastName: string
 }
 
 // ─── Guest Sessions ─────────────────────────────────
