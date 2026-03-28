@@ -19,16 +19,24 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      console.log('Attempting login for:', email)
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (authError) throw authError
 
-      // Successful login for management
-      router.push('/hotels')
+      console.log('Login successful, session data received:', data.session ? 'Yes' : 'No')
+      
+      // Delay slightly for cookies to settle on Vercel
+      setTimeout(() => {
+        console.log('Redirecting to /hotels...')
+        window.location.href = '/hotels'
+      }, 500)
+
     } catch (err: any) {
+      console.error('Login error:', err)
       setError(err.message || 'Failed to sign in')
       setLoading(false)
     }
