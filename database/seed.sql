@@ -1,7 +1,7 @@
 -- Neotiv Platform Supabase Seed Data
 
 -- Clear existing data
-TRUNCATE TABLE deals, notifications, alarms, chat_messages, guest_sessions, rooms, room_types, users, hotels, organizations RESTART IDENTITY CASCADE;
+TRUNCATE TABLE deals, hotel_services, notifications, alarms, chat_messages, guest_sessions, rooms, room_types, users, hotels, organizations RESTART IDENTITY CASCADE;
 
 -- 1. Organizations
 INSERT INTO organizations (id, name) VALUES 
@@ -60,3 +60,12 @@ INSERT INTO notifications (hotel_id, session_id, title, body, type, created_at) 
 INSERT INTO deals (id, hotel_id, title, description, poster_url, valid_until) VALUES 
 ('deal-1-0000-0000-0000-00000000000000', 'h-grand-sapphire-0000-0000-000000000000', 'Signature Spa Retreat', 'Book a 90-minute massage and get a complimentary facial.', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&q=80', NOW() + INTERVAL '30 days'),
 ('deal-2-0000-0000-0000-00000000000000', 'h-grand-sapphire-0000-0000-000000000000', 'Chef''s Tasting Menu', 'Experience our 5-course seasonal dinner curated by Chef Laurent.', 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80', NOW() + INTERVAL '14 days');
+
+-- 11. Hotel Services
+INSERT INTO hotel_services (hotel_id, category, name, description) VALUES 
+('h-grand-sapphire-0000-0000-000000000000', 'food', 'Room Service', 'Order from our full menu, delivered to your room 24/7'),
+('h-grand-sapphire-0000-0000-000000000000', 'spa', 'Spa & Massage', 'Book in-room or visit our wellness center'),
+('h-grand-sapphire-0000-0000-000000000000', 'transport', 'Airport Transfer', 'Private car service to/from the airport'),
+('h-grand-sapphire-0000-0000-000000000000', 'laundry', 'Laundry & Dry Clean', 'Express laundry service, 4-hour turnaround'),
+('h-grand-sapphire-0000-0000-000000000000', 'food', 'Restaurant Reservation', 'Reserve a table at any of our 3 dining venues'),
+('h-grand-sapphire-0000-0000-000000000000', 'other', 'Concierge', 'Tour bookings, tickets, and local recommendations');

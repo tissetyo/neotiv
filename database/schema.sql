@@ -22,10 +22,10 @@ CREATE TABLE hotels (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Users (Staff) - links to auth.users theoretically, but keeping it standalone for now for ease of seeding
+-- 3. Users (Staff)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    auth_id UUID, -- References auth.users(id) in a real setup
+    auth_id UUID UNIQUE, -- References auth.users(id)
     organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
     hotel_id UUID REFERENCES hotels(id) ON DELETE SET NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -34,6 +34,36 @@ CREATE TABLE users (
     role VARCHAR(50) NOT NULL, -- super_admin, hotel_manager, front_office
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Trigger to automatically create a user profile when a new user signs up via Supabase Auth
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.users (auth_id, email, first_name, last_name, role)
+  VALUES (
+    new.id,
+    new.email,
+    COALESCE(new.raw_user_meta_data->>'first_name', 'New'),
+    COALESCE(new.raw_user_meta_data->>'last_name', 'User'),
+    COALESCE(new.raw_user_meta_data->>'role', 'front_office')
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger on auth.users (Note: This requires permission to execute on auth schema)
+-- We use a conditional check to ensure we only apply it if the auth schema is available
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'auth') THEN
+        DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+        CREATE TRIGGER on_auth_user_created
+            AFTER INSERT ON auth.users
+            FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+    END IF;
+END
+$$;
+
 
 -- 4. Room Types
 CREATE TABLE room_types (
@@ -114,6 +144,17 @@ CREATE TABLE deals (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 11. Hotel Services
+CREATE TABLE hotel_services (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE NOT NULL,
+    category VARCHAR(50) NOT NULL, -- food, spa, transport, laundry, other
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    icon_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Trigger to update room status on session active toggle (simplified logic)
 CREATE OR REPLACE FUNCTION update_room_status_on_session()
 RETURNS TRIGGER AS $$
@@ -144,6 +185,7 @@ ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alarms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hotel_services ENABLE ROW LEVEL SECURITY;
 
 -- For Phase 5 Demo Purposes: Allow ALL operations to anonymous/authenticated users so frontend works immediately.
 -- In a production environment, strict policies should be bound to auth.uid() and role tables.
@@ -157,6 +199,7 @@ CREATE POLICY "Allow all operations for chat_messages" ON chat_messages FOR ALL 
 CREATE POLICY "Allow all operations for alarms" ON alarms FOR ALL USING (true);
 CREATE POLICY "Allow all operations for notifications" ON notifications FOR ALL USING (true);
 CREATE POLICY "Allow all operations for deals" ON deals FOR ALL USING (true);
+CREATE POLICY "Allow all operations for hotel_services" ON hotel_services FOR ALL USING (true);
 
 -- ENABLE REALTIME
 -- This tells Supabase to broadcast changes for these tables over WebSockets
@@ -164,3 +207,4 @@ alter publication supabase_realtime add table chat_messages;
 alter publication supabase_realtime add table alarms;
 alter publication supabase_realtime add table notifications;
 alter publication supabase_realtime add table rooms;
+alter publication supabase_realtime add table hotel_services;
