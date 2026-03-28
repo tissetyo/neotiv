@@ -29,13 +29,33 @@ A comprehensive **Next.js 14 Dashboard Application** (`apps/frontoffice`) tailor
 
 5.  **Deals & Notification Management**
     *   **Deals Manager (`/deals`)**: Grid of promotional cards with dynamic valid/expired badges based on date-fns computation.
-    *   **Notification Sender (`/notifications`)**: A split-screen composer to blast alerts instantly to "All Active Rooms" or target a specific guest session.
+    *   **Notification Sender (`/notifications`)**: A split-screen composer to# Walkthrough: Neotiv Multi-Tenant Platform Migration (Phase 5)
 
----
+We have successfully migrated the Neotiv hospitality platform to a live, multi-tenant architecture using Supabase. The platform now features secure authentication, real-time data synchronization, and property-level management.
 
-## Verifications & Screen Captures
+## 1. Platform Infrastructure
+- **Supabase SSR**: Implemented secure, cookie-based session management across all three applications using `@supabase/ssr`.
+- **Database Schema**: Established a robust relational schema with Row Level Security (RLS) to ensure data isolation between hotels and management groups.
+- **Dynamic Routing**: The TV Dashboard now utilizes dynamic `/[hotelId]/[roomNumber]` routing to fetch device-specific guest sessions.
 
-The following webp recordings capture the seamless visual interaction and rendering of these features.
+## 2. Multi-Tenant Authentication
+- **Front Office & Management Login**: Developed production-ready login systems that authenticate staff and administrators against live Supabase Auth records.
+- **Role-Based Access**: User profiles are automatically fetched and applied to the dashboard layouts, ensuring staff only see data for their assigned property.
+
+## 3. Real-Time Guest Experience (TV Dashboard)
+- **Live Notifications**: Integrated Supabase Channels to deliver emergency alerts and personalized messages to guest TVs instantly.
+- **Guest Chat**: Enabled real-time bidirectional communication between the Front Office and the guest room.
+- **Alarm Sync**: Synchronized wake-up calls and alarms between the guest's device and the property's management system.
+
+## 4. Hotel Services Management
+- **Availability Toggle**: Built a functional service management interface in the Front Office dashboard, allowing staff to hide or show hotel services (e.g., Spa, Pool) in real-time on guest TVs.
+- **Management Oversight**: Admins can now manage property-level staff rosters and service configurations from a central dashboard.
+
+## Verification Checklist for User
+1.  **Database**: Run `database/schema.sql` and `database/seed.sql` on your Supabase Project.
+2.  **Environment Variables**: Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel for all 3 apps.
+3.  **Realtime**: Ensure Realtime is enabled in Supabase Replication settings for `chat_messages`, `alarms`, and `notifications`.
+ capture the seamless visual interaction and rendering of these features.
 
 ### Navigation: Login → Room Grid
 *Visualizes entering the app and exploring the status-coded room overviews.*

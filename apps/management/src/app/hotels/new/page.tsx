@@ -1,13 +1,7 @@
-import { Navbar } from '@/components/Navbar'
-import { Building2, MapPin, Globe, Image as ImageIcon, Save, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
-
 export default function NewHotelPage() {
   return (
     <>
-      <Navbar />
-      
-      <main className="admin-container pt-24 pb-12">
+      <main className="admin-container py-12">
         <div className="max-w-3xl mx-auto">
           <Link href="/hotels" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent font-medium mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" />
