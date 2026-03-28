@@ -19,6 +19,8 @@ const mockRoomType: RoomType = {
   hotelId: 'hotel-001',
   name: 'Ocean Suite',
   description: 'Luxury ocean-view suite with private balcony',
+  basePrice: 500,
+  capacity: 4,
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 }

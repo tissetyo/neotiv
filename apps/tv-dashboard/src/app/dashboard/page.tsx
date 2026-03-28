@@ -66,7 +66,7 @@ export default function DashboardPage(): React.ReactElement {
     return () => clearInterval(interval)
   }, [setFocus])
 
-  const bgImage = data.session.tvBackgroundUrl || 'https://images.unsplash.com/photo-1498092651296-641e88c3b057?auto=format&fit=crop&q=80&w=1920&h=1080'
+  const bgImage = data.session.backgroundUrl || 'https://images.unsplash.com/photo-1498092651296-641e88c3b057?auto=format&fit=crop&q=80&w=1920&h=1080'
 
   return (
     <div 
