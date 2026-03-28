@@ -18,7 +18,7 @@ export default async function HotelsPage() {
     .from('users')
     .select('organization_id, role')
     .eq('auth_id', user!.id)
-    .single()
+    .maybeSingle()
 
   // If user has no profile / org assignment yet, show empty state
   let hotels: any[] = []

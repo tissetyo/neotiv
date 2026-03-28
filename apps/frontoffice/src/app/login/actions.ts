@@ -18,7 +18,5 @@ export async function loginAction(formData: FormData) {
     return { error: error.message }
   }
 
-  // Server action redirect forces Next.js router to navigate
-  // while preserving cookies correctly in edge/server context
-  redirect('/dashboard')
+  return { success: true }
 }

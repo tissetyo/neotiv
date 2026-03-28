@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     .from('users')
     .select('hotel_id')
     .eq('auth_id', user.id)
-    .single()
+    .maybeSingle()
 
   if (!profile?.hotel_id) {
     // If no hotel assigned, might be a super admin or error

@@ -27,7 +27,9 @@ export default function LoginPage() {
         throw new Error(result.error)
       }
       
-      // Since loginAction calls redirect() on success, we won't reach here unless there's an error
+      if (result?.success) {
+        window.location.href = '/dashboard'
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
       setLoading(false)
