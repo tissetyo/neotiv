@@ -32,7 +32,23 @@ export async function updateSession(request: NextRequest) {
   // Auth guards live in each Server Component via supabase.auth.getUser().
   // Vercel Edge Runtime cannot reliably call getUser()/getSession() because
   // auth cookies may not be forwarded correctly to the edge layer.
-  await supabase.auth.getSession()
+  const { data: { session } } = await supabase.auth.getSession()
+
+  const isLoginPage = request.nextUrl.pathname.startsWith('/login')
+
+  // Redirect to login if accessing protected route without session
+  if (!session && !isLoginPage) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Redirect to hotels if accessing login while already authenticated
+  if (session && isLoginPage) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/hotels'
+    return NextResponse.redirect(url)
+  }
 
   return supabaseResponse
 }

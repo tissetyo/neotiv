@@ -10,16 +10,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
-
-  // If user is already logged in, redirect away from login page
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        window.location.href = '/dashboard'
-      }
-    })
-  }, [supabase])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

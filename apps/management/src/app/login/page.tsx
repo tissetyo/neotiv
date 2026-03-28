@@ -1,9 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Building2, Loader2, AlertCircle } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { loginAction } from './actions'
 
 export default function LoginPage() {
@@ -11,17 +9,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
-  const router = useRouter()
-
-  // If user is already logged in, redirect away from login page
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        window.location.href = '/hotels'
-      }
-    })
-  }, [supabase])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
