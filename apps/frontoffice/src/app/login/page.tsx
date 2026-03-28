@@ -1,8 +1,51 @@
-import { mockStaff } from '@/data/mock-data'
-import { Building2 } from 'lucide-react'
-import Link from 'next/link'
+'use client'
+
+import { useState } from 'react'
+import { Building2, Loader2, AlertCircle } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const supabase = createClient()
+  const router = useRouter()
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (authError) throw authError
+
+      // Fetch user profile to get hotel_id
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('hotel_id')
+        .eq('auth_id', data.user.id)
+        .single()
+
+      if (profileError || !profile?.hotel_id) {
+        // If they don't have a hotel assigned, they shouldn't be here (or they are super admin)
+        router.push('/dashboard') // fallback to global dashboard
+      } else {
+        // Successful login for hotel staff
+        router.push('/dashboard')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in')
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-bg-body flex items-center justify-center p-4">
       {/* Background decoration */}
@@ -17,15 +60,24 @@ export default function LoginPage() {
           <p className="text-text-secondary mt-1">Sign in to manage your hotel</p>
         </div>
 
-        <form className="card p-8">
+        <form className="card p-8" onSubmit={handleLogin}>
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex gap-3 text-red-600 text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p>{error}</p>
+            </div>
+          )}
+
           <div className="space-y-5 mb-8">
             <div>
               <label className="label" htmlFor="email">Email address</label>
               <input 
                 id="email" 
                 type="email" 
-                defaultValue={mockStaff.email}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="input" 
+                placeholder="staff@hotel.com"
                 required 
               />
             </div>
@@ -34,17 +86,22 @@ export default function LoginPage() {
               <input 
                 id="password" 
                 type="password" 
-                defaultValue="password123"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="input" 
+                placeholder="••••••••"
                 required 
               />
             </div>
           </div>
 
-          {/* Simple Link for demo purposes since we don't have real auth yet */}
-          <Link href="/dashboard" className="btn-primary w-full shadow-lg shadow-primary/10 py-3">
-            Sign In
-          </Link>
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="btn-primary w-full shadow-lg shadow-primary/10 py-3 flex items-center justify-center"
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
+          </button>
           
           <p className="text-center text-xs text-text-muted mt-6">
             Internal hotel staff use only
@@ -54,3 +111,4 @@ export default function LoginPage() {
     </div>
   )
 }
+

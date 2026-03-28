@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { CloudRain } from 'lucide-react'
-import { mockDashboardData } from '@/data/mock-data'
-import type { Deal } from '@neotiv/types'
+import type { DashboardData, Deal, ChatMessage, Notification, Alarm } from '@neotiv/types'
+import { createClient } from '@neotiv/supabase-config'
 
 // Setup spatial navigation
 import { useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation'
@@ -28,8 +28,17 @@ import ServicesModal from '@/components/overlays/ServicesModal'
 import DealsModal from '@/components/overlays/DealsModal'
 import AlarmSetModal from '@/components/overlays/AlarmSetModal'
 
-export default function DashboardPage(): React.ReactElement {
-  const data = mockDashboardData
+interface DashboardClientProps {
+  data: DashboardData
+}
+
+export default function DashboardClient({ data }: DashboardClientProps): React.ReactElement {
+  const supabase = createClient()
+
+  // Real-time states
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(data.chatMessages)
+  const [notifications, setNotifications] = useState<Notification[]>(data.notifications)
+  const [alarms, setAlarms] = useState<Alarm[]>(data.alarms)
 
   // Overlay states
   const [chatOpen, setChatOpen] = useState(false)
@@ -64,7 +73,62 @@ export default function DashboardPage(): React.ReactElement {
     checkTime()
     const interval = setInterval(checkTime, 60000)
     return () => clearInterval(interval)
-  }, [setFocus])
+  }, []);
+
+  // Realtime Subscriptions
+  useEffect(() => {
+    const sessionChannel = supabase
+      .channel(`room-session-${data.session.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `session_id=eq.${data.session.id}` },
+        (payload) => {
+          const newMessage = payload.new as any
+          setChatMessages(prev => [...prev, {
+            id: newMessage.id,
+            sessionId: newMessage.session_id,
+            senderRole: newMessage.sender_role,
+            content: newMessage.content,
+            readAt: newMessage.read_at,
+            createdAt: newMessage.created_at
+          }])
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications', filter: `session_id=eq.${data.session.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const n = payload.new as any
+            setNotifications(prev => [{
+               id: n.id, sessionId: n.session_id, title: n.title, body: n.body, readAt: n.read_at, createdAt: n.created_at
+            }, ...prev])
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'alarms', filter: `session_id=eq.${data.session.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const a = payload.new as any
+            setAlarms(prev => [...prev, {
+              id: a.id, sessionId: a.session_id, scheduledAt: a.scheduled_at, note: a.note, isActive: a.is_active, acknowledged: a.acknowledged, createdAt: a.created_at, updatedAt: a.created_at
+            }])
+          } else if (payload.eventType === 'UPDATE') {
+            const a = payload.new as any
+            setAlarms(prev => prev.map(item => item.id === a.id ? {
+              id: a.id, sessionId: a.session_id, scheduledAt: a.scheduled_at, note: a.note, isActive: a.is_active, acknowledged: a.acknowledged, createdAt: a.created_at, updatedAt: a.created_at
+            } : item))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(sessionChannel)
+    }
+  }, [data.session.id])
 
   const bgImage = data.session.backgroundUrl || 'https://images.unsplash.com/photo-1498092651296-641e88c3b057?auto=format&fit=crop&q=80&w=1920&h=1080'
 
@@ -134,7 +198,7 @@ export default function DashboardPage(): React.ReactElement {
             </FocusableTile>
             
             <FocusableTile className="min-h-0 flex-1 flex flex-col">
-              <NotificationCard notifications={data.notifications} />
+              <NotificationCard notifications={notifications} />
             </FocusableTile>
           </div>
         </div>
@@ -176,13 +240,13 @@ export default function DashboardPage(): React.ReactElement {
       </div>
 
       {/* Ticker Bar — Full Width Bottom */}
-      <TickerBar notifications={data.notifications} hotelName={data.hotel.name} />
+      <TickerBar notifications={notifications} hotelName={data.hotel.name} />
 
       {/* ── Overlays ──────────────────────────────────────── */}
       <ChatOverlay
         isOpen={chatOpen}
         onClose={() => setChatOpen(false)}
-        messages={data.chatMessages}
+        messages={chatMessages}
         guestName={data.session.guestName}
       />
       <ServicesModal
@@ -203,3 +267,4 @@ export default function DashboardPage(): React.ReactElement {
     </div>
   )
 }
+

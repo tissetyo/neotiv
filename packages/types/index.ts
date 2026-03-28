@@ -32,6 +32,7 @@ export type Hotel = BaseEntity & {
   address: string | null
   timezone: string
   logoUrl: string | null
+  status: string
   deletedAt: string | null
 }
 

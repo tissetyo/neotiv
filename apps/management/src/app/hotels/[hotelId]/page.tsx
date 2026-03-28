@@ -1,22 +1,37 @@
-import { Navbar } from '@/components/Navbar'
-import { mockHotels } from '@/data/mock-data'
-import { Building2, LayoutDashboard, Users, DoorOpen, Settings as SettingsIcon, ArrowLeft } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { Building2, LayoutDashboard, Users, DoorOpen, Settings as SettingsIcon, ArrowLeft, Settings } from 'lucide-react'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
-export default function HotelDashboardPage({ params }: { params: { hotelId: string } }) {
-  const hotel = mockHotels.find(h => h.id === params.hotelId)
+export default async function HotelDashboardPage({ params }: { params: { hotelId: string } }) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   
-  if (!hotel) return notFound()
+  if (!user) {
+    redirect('/login')
+  }
+
+  // Fetch hotel details with counts
+  const { data: hotelData } = await supabase
+    .from('hotels')
+    .select('*, rooms(count), users(count)')
+    .eq('id', params.hotelId)
+    .single()
+
+  if (!hotelData) return notFound()
+
+  const hotel = {
+    ...hotelData,
+    totalRooms: hotelData.rooms?.[0]?.count || 0,
+    activeStaff: hotelData.users?.[0]?.count || 0
+  }
 
   return (
     <>
-      <Navbar />
-      
       {/* Property Header Banner */}
-      <div className="w-full bg-primary pt-24 pb-12 relative overflow-hidden">
+      <div className="w-full bg-primary pt-8 pb-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <img src={hotel.logoUrl} alt="" className="w-full h-full object-cover" />
+          {hotel.logo_url && <img src={hotel.logo_url} alt="" className="w-full h-full object-cover" />}
           <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm" />
         </div>
         
@@ -26,12 +41,16 @@ export default function HotelDashboardPage({ params }: { params: { hotelId: stri
               <ArrowLeft className="w-4 h-4" /> Back to Properties
             </Link>
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-xl bg-white shadow-lg overflow-hidden shrink-0 border-2 border-white/10 p-1">
-                 <img src={hotel.logoUrl} alt="" className="w-full h-full object-cover rounded-lg" />
+              <div className="w-16 h-16 rounded-xl bg-white shadow-lg overflow-hidden shrink-0 border-2 border-white/10 p-1 flex items-center justify-center">
+                 {hotel.logo_url ? (
+                   <img src={hotel.logo_url} alt="" className="w-full h-full object-cover rounded-lg" />
+                 ) : (
+                   <Building2 className="w-8 h-8 text-primary/20" />
+                 )}
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white tracking-tight">{hotel.name}</h1>
-                <p className="text-white/80 font-medium">{hotel.address}</p>
+                <p className="text-white/80 font-medium">{hotel.address || 'No address provided'}</p>
               </div>
             </div>
           </div>
@@ -52,13 +71,13 @@ export default function HotelDashboardPage({ params }: { params: { hotelId: stri
             <LayoutDashboard className="w-4 h-4" /> Overview
           </Link>
           <Link href={`/hotels/${hotel.id}/rooms`} className="px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-t-lg transition-colors flex items-center gap-2">
-            <DoorOpen className="w-4 h-4" /> Rooms & Types
+            <DoorOpen className="w-4 h-4" /> Rooms
+          </Link>
+          <Link href={`/hotels/${hotel.id}/services`} className="px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-t-lg transition-colors flex items-center gap-2">
+            <Settings className="w-4 h-4" /> Services
           </Link>
           <Link href={`/hotels/${hotel.id}/staff`} className="px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-t-lg transition-colors flex items-center gap-2">
             <Users className="w-4 h-4" /> Staff Access
-          </Link>
-          <Link href={`#`} className="px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-t-lg transition-colors flex items-center gap-2 ml-auto">
-            <SettingsIcon className="w-4 h-4" /> Settings
           </Link>
         </div>
 
@@ -141,3 +160,4 @@ export default function HotelDashboardPage({ params }: { params: { hotelId: stri
     </>
   )
 }
+

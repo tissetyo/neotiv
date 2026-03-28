@@ -1,9 +1,12 @@
 import Link from 'next/link'
 import { Building2, Settings, UserCircle, LogOut, LayoutGrid } from 'lucide-react'
-import { mockStaff } from '@/data/mock-data'
+interface NavbarProps {
+  userEmail: string
+  role: string
+}
 
-export function Navbar() {
-  const currentUser = mockStaff.find(s => s.role === 'super_admin') || mockStaff[0]
+export function Navbar({ userEmail, role }: NavbarProps) {
+  const displayName = userEmail.split('@')[0]
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-primary text-white z-50 shadow-md">
@@ -42,9 +45,9 @@ export function Navbar() {
         {/* User Profile & Actions */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:block text-right">
-            <p className="text-sm font-semibold">{currentUser.firstName} {currentUser.lastName}</p>
+            <p className="text-sm font-semibold">{displayName}</p>
             <p className="text-xs text-text-muted capitalize">
-              {currentUser.role.replace('_', ' ')}
+              {role.replace('_', ' ')}
             </p>
           </div>
           

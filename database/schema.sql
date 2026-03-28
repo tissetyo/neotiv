@@ -152,6 +152,7 @@ CREATE TABLE hotel_services (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     icon_url TEXT,
+    is_available BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

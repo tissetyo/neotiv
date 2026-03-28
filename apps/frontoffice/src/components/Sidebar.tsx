@@ -3,16 +3,21 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Building2, LayoutDashboard, CalendarCheck, Users, Megaphone, Bell, LogOut, Settings } from 'lucide-react'
-import { mockHotel, mockStaff } from '@/data/mock-data'
-
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Room Overview' },
+  { path: '/dashboard/services', icon: Settings, label: 'Hotel Services' },
   { path: '/check-in', icon: CalendarCheck, label: 'Check-in Guest' },
   { path: '/deals', icon: Megaphone, label: 'Deals Manager' },
   { path: '/notifications', icon: Bell, label: 'Notifications' },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  hotelName: string
+  staffEmail: string
+  role: string
+}
+
+export function Sidebar({ hotelName, staffEmail, role }: SidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -24,7 +29,7 @@ export function Sidebar() {
           </div>
           <div>
             <h1 className="font-bold text-sm text-text-primary leading-tight">
-              {mockHotel.name}
+              {hotelName}
             </h1>
             <p className="text-[11px] text-text-secondary font-medium">
               Front Office Panel
@@ -34,7 +39,7 @@ export function Sidebar() {
 
         <nav className="py-6 flex flex-col gap-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`)
+            const isActive = pathname === item.path || (item.path !== '/dashboard' && pathname.startsWith(item.path))
             return (
               <Link 
                 key={item.path} 
@@ -52,14 +57,14 @@ export function Sidebar() {
       <div className="border-t border-border-light p-4">
         <div className="flex items-center gap-3 px-2 mb-4">
           <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
-            FO
+            {staffEmail.substring(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-text-primary truncate">
-              {mockStaff.email.split('@')[0]}
+              {staffEmail.split('@')[0]}
             </p>
             <p className="text-[11px] text-text-secondary font-medium capitalize truncate">
-              {mockStaff.role.replace('_', ' ')}
+              {role.replace('_', ' ')}
             </p>
           </div>
         </div>

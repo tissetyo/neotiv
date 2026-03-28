@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@neotiv/types": "workspace:*",
+    "@supabase/ssr": "^0.3.0",
+    "@supabase/supabase-js": "^2.42.0",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.468.0",

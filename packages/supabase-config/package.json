@@ -9,10 +9,11 @@
     "dev": "tsc -w"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.42.0",
-    "@supabase/ssr": "^0.3.0"
+    "@supabase/ssr": "^0.3.0",
+    "@supabase/supabase-js": "^2.42.0"
   },
   "devDependencies": {
+    "@types/node": "^25.5.0",
     "typescript": "^5.0.0"
   }
 }

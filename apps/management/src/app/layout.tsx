@@ -9,15 +9,35 @@ export const metadata: Metadata = {
   description: "Administrative dashboard for the Neotiv hospitality platform",
 };
 
-export default function RootLayout({
+import { Navbar } from "@/components/Navbar";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Profile fetch (optional for root, but useful for Navbar)
+  let profile = null;
+  if (user) {
+    const { data } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_id', user.id)
+      .single();
+    profile = data;
+  }
+
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans`}>
-        {children}
+        {user && <Navbar userEmail={user.email!} role={profile?.role || 'staff'} />}
+        <div className={user ? "pt-16" : ""}>
+          {children}
+        </div>
       </body>
     </html>
   );

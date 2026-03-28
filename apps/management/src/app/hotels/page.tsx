@@ -1,15 +1,49 @@
-import { Navbar } from '@/components/Navbar'
 import { HotelCard } from '@/components/HotelCard'
-import { mockHotels } from '@/data/mock-data'
 import { Plus, Search, Filter } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import type { Hotel } from '@neotiv/types'
 
-export default function HotelsPage() {
+export default async function HotelsPage() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    redirect('/login')
+  }
+
+  // Fetch hotels for this organization (derived from user)
+  const { data: profile } = await supabase
+    .from('users')
+    .select('organization_id')
+    .eq('auth_id', user.id)
+    .single()
+
+  const { data: hotelsData } = await supabase
+    .from('hotels')
+    .select('*, rooms(count), users(count)')
+    .eq('organization_id', profile?.organization_id)
+
+  const hotels = (hotelsData || []).map((h: any) => ({
+    id: h.id,
+    organizationId: h.organization_id,
+    name: h.name,
+    address: h.address,
+    timezone: h.timezone,
+    logoUrl: h.logo_url,
+    status: h.status,
+    deletedAt: h.deleted_at,
+    createdAt: h.created_at,
+    updatedAt: h.updated_at,
+    // Add virtual fields for the Card
+    totalRooms: h.rooms?.[0]?.count || 0,
+    activeStaff: h.users?.[0]?.count || 0
+  }))
+
   return (
     <>
-      <Navbar />
-      
-      <main className="admin-container pt-24 pb-12">
+      <main className="admin-container pt-8 pb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <h1 className="page-title">Properties overview</h1>
@@ -40,18 +74,18 @@ export default function HotelsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="card py-4">
              <p className="text-sm font-semibold text-text-secondary mb-1">Total Properties</p>
-             <p className="text-3xl font-bold text-text-primary">{mockHotels.length}</p>
+             <p className="text-3xl font-bold text-text-primary">{hotels.length}</p>
           </div>
           <div className="card py-4">
              <p className="text-sm font-semibold text-text-secondary mb-1">Active Rooms</p>
              <p className="text-3xl font-bold text-text-primary">
-               {mockHotels.reduce((acc, h) => acc + h.totalRooms, 0)}
+               {hotels.reduce((acc, h) => acc + (h.totalRooms || 0), 0)}
              </p>
           </div>
           <div className="card py-4">
              <p className="text-sm font-semibold text-text-secondary mb-1">Total Staff</p>
              <p className="text-3xl font-bold text-text-primary">
-               {mockHotels.reduce((acc, h) => acc + h.activeStaff, 0)}
+               {hotels.reduce((acc, h) => acc + (h.activeStaff || 0), 0)}
              </p>
           </div>
           <div className="card py-4 bg-accent/5 border-accent/20">
@@ -65,7 +99,7 @@ export default function HotelsPage() {
 
         {/* Property Grid */}
         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
-          {mockHotels.map(hotel => (
+          {hotels.map(hotel => (
             <HotelCard key={hotel.id} hotel={hotel} />
           ))}
         </div>
@@ -73,3 +107,4 @@ export default function HotelsPage() {
     </>
   )
 }
+

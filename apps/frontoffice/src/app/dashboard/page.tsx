@@ -1,9 +1,85 @@
 import { RoomCard } from '@/components/RoomCard'
-import { mockRooms, mockSessions } from '@/data/mock-data'
 import { BedDouble, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import type { Room, GuestSession, RoomType } from '@neotiv/types'
 
-export default function DashboardPage() {
-  const rooms = mockRooms
+export default async function DashboardPage() {
+  const supabase = createClient()
+  
+  // 1. Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect('/login')
+  }
+
+  // 2. Get user profile for hotel_id
+  const { data: profile } = await supabase
+    .from('users')
+    .select('hotel_id')
+    .eq('auth_id', user.id)
+    .single()
+
+  if (!profile?.hotel_id) {
+    // If no hotel assigned, might be a super admin or error
+    return <div className="p-8 text-center bg-white rounded-2xl border border-gray-100">No hotel assigned to your account.</div>
+  }
+
+  // 3. Fetch rooms with room types and active sessions
+  const [{ data: rawRooms }, { data: rawSessions }] = await Promise.all([
+    supabase
+      .from('rooms')
+      .select('*, room_types(*)')
+      .eq('hotel_id', profile.hotel_id)
+      .order('number'),
+    supabase
+      .from('guest_sessions')
+      .select('*')
+      .eq('is_active', true)
+  ])
+
+  // Map to our camelCase types
+  const rooms: Room[] = (rawRooms || []).map((r: any) => ({
+    id: r.id,
+    hotelId: r.hotel_id,
+    roomTypeId: r.room_type_id,
+    number: r.number,
+    floor: r.floor,
+    status: r.status,
+    deletedAt: r.deleted_at,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+    roomType: r.room_types ? {
+      id: r.room_types.id,
+      hotelId: r.room_types.hotel_id,
+      name: r.room_types.name,
+      description: r.room_types.description,
+      basePrice: r.room_types.base_price,
+      capacity: r.room_types.capacity,
+      deletedAt: r.room_types.deleted_at || null,
+      createdAt: r.room_types.created_at,
+      updatedAt: r.room_types.updated_at
+    } : undefined
+  }))
+
+  const sessions: Record<string, GuestSession> = (rawSessions || []).reduce((acc: any, s: any) => {
+    acc[s.id] = {
+      id: s.id,
+      roomId: s.room_id,
+      sessionToken: s.session_token,
+      guestName: s.guest_name,
+      checkIn: s.check_in,
+      checkOut: s.check_out,
+      isActive: s.is_active,
+      backgroundUrl: s.tv_background_url,
+      guestPhotoUrl: null,
+      defaultBackground: null,
+      createdAt: s.created_at,
+      updatedAt: s.created_at
+    }
+    return acc
+  }, {})
+
   const availableCount = rooms.filter(r => r.status === 'available').length
   const occupiedCount = rooms.filter(r => r.status === 'occupied').length
   const maintenanceCount = rooms.filter(r => r.status === 'maintenance').length
@@ -73,7 +149,7 @@ export default function DashboardPage() {
             <RoomCard 
               key={room.id} 
               room={room} 
-              session={Object.values(mockSessions).find(s => s.roomId === room.id)} 
+              session={Object.values(sessions).find(s => s.roomId === room.id)} 
             />
           ))}
         </div>
@@ -81,3 +157,4 @@ export default function DashboardPage() {
     </>
   )
 }
+
