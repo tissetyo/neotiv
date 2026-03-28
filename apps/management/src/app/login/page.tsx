@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Building2, Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { loginAction } from './actions'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -28,15 +29,17 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const formData = new FormData()
+      formData.append('email', email)
+      formData.append('password', password)
+      
+      const result = await loginAction(formData)
 
-      if (authError) throw authError
-
-      // Hard navigate — full browser reload ensures cookies are sent with request
-      window.location.href = '/hotels'
+      if (result?.error) {
+        throw new Error(result.error)
+      }
+      
+      // Since loginAction calls redirect() on success, we won't reach here unless there's an error
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
       setLoading(false)

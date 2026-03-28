@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Building2, Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { loginAction } from './actions'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -11,21 +12,32 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
+  // If user is already logged in, redirect away from login page
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = '/dashboard'
+      }
+    })
+  }, [supabase])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const formData = new FormData()
+      formData.append('email', email)
+      formData.append('password', password)
+      
+      const result = await loginAction(formData)
 
-      if (authError) throw authError
-
-      // Hard navigate so the full HTTP cycle picks up auth cookies cleanly.
-      window.location.href = '/dashboard'
+      if (result?.error) {
+        throw new Error(result.error)
+      }
+      
+      // Since loginAction calls redirect() on success, we won't reach here unless there's an error
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
       setLoading(false)
