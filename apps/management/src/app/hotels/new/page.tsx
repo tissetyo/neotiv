@@ -1,3 +1,6 @@
+import { Building2, MapPin, Globe, Image as ImageIcon, Save, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+
 export default function NewHotelPage() {
   return (
     <>

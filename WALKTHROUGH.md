@@ -51,10 +51,15 @@ We have successfully migrated the Neotiv hospitality platform to a live, multi-t
 - **Availability Toggle**: Built a functional service management interface in the Front Office dashboard, allowing staff to hide or show hotel services (e.g., Spa, Pool) in real-time on guest TVs.
 - **Management Oversight**: Admins can now manage property-level staff rosters and service configurations from a central dashboard.
 
+## 5. Build & Architecture Cleanup
+- **Navigation Flow**: Standardized the `Navbar` and `Sidebar` in the root layouts to ensure a consistent props-driven navigation across all authenticated pages.
+- **Build Fix**: Resolved a critical duplicate component error in the `management` property creation flow.
+
 ## Verification Checklist for User
 1.  **Database**: Run `database/schema.sql` and `database/seed.sql` on your Supabase Project.
 2.  **Environment Variables**: Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel for all 3 apps.
 3.  **Realtime**: Ensure Realtime is enabled in Supabase Replication settings for `chat_messages`, `alarms`, and `notifications`.
+
  capture the seamless visual interaction and rendering of these features.
 
 ### Navigation: Login → Room Grid
