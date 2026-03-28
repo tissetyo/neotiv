@@ -19,27 +19,15 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (authError) throw authError
 
-      // Fetch user profile to get hotel_id
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .select('hotel_id')
-        .eq('auth_id', data.user.id)
-        .single()
-
-      if (profileError || !profile?.hotel_id) {
-        // If they don't have a hotel assigned, they shouldn't be here (or they are super admin)
-        router.push('/dashboard') // fallback to global dashboard
-      } else {
-        // Successful login for hotel staff
-        router.push('/dashboard')
-      }
+      // Always redirect to dashboard; middleware will guard protected routes
+      router.replace('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
       setLoading(false)

@@ -13,17 +13,16 @@ export default function LoginPage() {
   const supabase = createClient()
   const router = useRouter()
 
-  // Auto-redirect if already logged in
+  // Auto-redirect if already logged in (middleware handles this server-side too)
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        console.log('User already logged in, redirecting...')
-        window.location.href = '/hotels'
+        router.replace('/hotels')
       }
     }
     checkUser()
-  }, [supabase])
+  }, [supabase, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,24 +30,16 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      console.log('Attempting login for:', email)
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (authError) throw authError
 
-      console.log('Login successful, session data received:', data.session ? 'Yes' : 'No')
-      
-      // Delay slightly for cookies to settle on Vercel
-      setTimeout(() => {
-        console.log('Redirecting to /hotels...')
-        window.location.href = '/hotels'
-      }, 500)
-
+      // Redirect to hotels list after successful login
+      router.replace('/hotels')
     } catch (err: any) {
-      console.error('Login error:', err)
       setError(err.message || 'Failed to sign in')
       setLoading(false)
     }

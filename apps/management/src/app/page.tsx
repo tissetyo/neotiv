@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 export default function Home() {
-  // Redirect root to the hotels list
+  // Middleware handles auth — if we reach here the user is authenticated.
+  // Redirect root to the hotels list.
   redirect('/hotels');
 }

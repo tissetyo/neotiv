@@ -52,11 +52,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // If user is already authenticated and visiting /login → redirect to /dashboard
+  // If user is already authenticated and visiting /login → redirect to /hotels
   if (user && isLoginPage) {
-    const dashboardUrl = request.nextUrl.clone()
-    dashboardUrl.pathname = '/dashboard'
-    return NextResponse.redirect(dashboardUrl)
+    const hotelsUrl = request.nextUrl.clone()
+    hotelsUrl.pathname = '/hotels'
+    return NextResponse.redirect(hotelsUrl)
   }
 
   return supabaseResponse
