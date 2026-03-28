@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Building2, Loader2, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -11,7 +10,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
-  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,8 +24,8 @@ export default function LoginPage() {
 
       if (authError) throw authError
 
-      // Always redirect to dashboard; middleware will guard protected routes
-      router.replace('/dashboard')
+      // Hard navigate so the full HTTP cycle picks up auth cookies cleanly.
+      window.location.href = '/dashboard'
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
       setLoading(false)

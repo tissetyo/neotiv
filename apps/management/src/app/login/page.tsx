@@ -37,8 +37,10 @@ export default function LoginPage() {
 
       if (authError) throw authError
 
-      // Redirect to hotels list after successful login
-      router.replace('/hotels')
+      // Hard navigate so the full HTTP cycle picks up auth cookies cleanly.
+      // router.replace() can fail silently in Next.js App Router if the
+      // target server component throws, leaving the spinner stuck forever.
+      window.location.href = '/hotels'
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
       setLoading(false)
