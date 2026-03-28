@@ -25,16 +25,26 @@ export default async function DashboardPage() {
     return <div className="p-8 text-center bg-white rounded-2xl border border-gray-100">No hotel assigned to your account.</div>
   }
 
-  // 3. Fetch rooms with room types and active sessions
+  // 3. Fetch rooms with room types and active sessions (scoped to this hotel)
   const [{ data: rawRooms }, { data: rawSessions }] = await Promise.all([
     supabase
       .from('rooms')
       .select('*, room_types(*)')
       .eq('hotel_id', profile.hotel_id)
+      .is('deleted_at', null)
       .order('number'),
     supabase
       .from('guest_sessions')
       .select('*')
+      .in('room_id', 
+        // Only sessions for rooms in this hotel
+        (await supabase
+          .from('rooms')
+          .select('id')
+          .eq('hotel_id', profile.hotel_id)
+          .is('deleted_at', null)
+        ).data?.map((r: any) => r.id) ?? []
+      )
       .eq('is_active', true)
   ])
 
