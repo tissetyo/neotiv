@@ -7,8 +7,8 @@ import type { Room, GuestSession, RoomType } from '@neotiv/types'
 export default async function DashboardPage() {
   const supabase = createClient()
   
-  // 1. Get current user
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   if (!user) {
     redirect('/login')
   }

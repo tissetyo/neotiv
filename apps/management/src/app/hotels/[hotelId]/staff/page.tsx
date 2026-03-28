@@ -6,7 +6,8 @@ import { format } from 'date-fns'
 
 export default async function StaffManagementPage({ params }: { params: { hotelId: string } }) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   
   if (!user) {
     redirect('/login')

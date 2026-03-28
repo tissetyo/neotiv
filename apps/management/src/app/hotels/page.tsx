@@ -7,7 +7,8 @@ import type { Hotel } from '@neotiv/types'
 
 export default async function HotelsPage() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   
   if (!user) {
     redirect('/login')

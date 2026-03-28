@@ -13,7 +13,8 @@ const iconMap: Record<string, any> = {
 
 export default async function HotelServicesPage({ params }: { params: { hotelId: string } }) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  const user = session?.user
   
   if (!user) {
     redirect('/login')

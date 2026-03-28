@@ -18,7 +18,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
 
   // Profile fetch (optional for root, but useful for Navbar)
   let profile = null;
@@ -27,7 +28,7 @@ export default async function RootLayout({
       .from('users')
       .select('*')
       .eq('auth_id', user.id)
-      .single();
+      .maybeSingle();
     profile = data;
   }
 
