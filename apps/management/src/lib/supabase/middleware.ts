@@ -35,16 +35,17 @@ export async function updateSession(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
 
   const isLoginPage = request.nextUrl.pathname.startsWith('/login')
+  const isRegisterPage = request.nextUrl.pathname.startsWith('/register')
 
   // Redirect to login if accessing protected route without session
-  if (!session && !isLoginPage) {
+  if (!session && !isLoginPage && !isRegisterPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Redirect to hotels if accessing login while already authenticated
-  if (session && isLoginPage) {
+  // Redirect to hotels if accessing login or register while already authenticated
+  if (session && (isLoginPage || isRegisterPage)) {
     const url = request.nextUrl.clone()
     url.pathname = '/hotels'
     return NextResponse.redirect(url)
