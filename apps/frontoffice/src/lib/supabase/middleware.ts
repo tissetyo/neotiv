@@ -28,27 +28,11 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Use getSession() instead of getUser() — getSession() parses the JWT
-  // locally without an outbound network call, making it safe for Edge runtime.
-  // getUser() makes an HTTP request to Supabase which can fail/timeout on edge.
-  const { data: { session } } = await supabase.auth.getSession()
-
-  const { pathname } = request.nextUrl
-  const isLoginPage = pathname === '/login'
-
-  // Unauthenticated → redirect to /login
-  if (!session && !isLoginPage) {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/login'
-    return NextResponse.redirect(loginUrl)
-  }
-
-  // Already authenticated on /login → redirect to /dashboard
-  if (session && isLoginPage) {
-    const dashboardUrl = request.nextUrl.clone()
-    dashboardUrl.pathname = '/dashboard'
-    return NextResponse.redirect(dashboardUrl)
-  }
+  // Only refresh the session cookie — do NOT add redirect logic here.
+  // Auth guards live in each Server Component via supabase.auth.getUser().
+  // Vercel Edge Runtime cannot reliably call getUser()/getSession() because
+  // auth cookies may not be forwarded correctly to the edge layer.
+  await supabase.auth.getSession()
 
   return supabaseResponse
 }
