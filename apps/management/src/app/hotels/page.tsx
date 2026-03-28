@@ -16,30 +16,33 @@ export default async function HotelsPage() {
   // Fetch hotels for this organization (derived from user)
   const { data: profile } = await supabase
     .from('users')
-    .select('organization_id')
-    .eq('auth_id', user.id)
+    .select('organization_id, role')
+    .eq('auth_id', user!.id)
     .single()
 
-  const { data: hotelsData } = await supabase
-    .from('hotels')
-    .select('*, rooms(count), users(count)')
-    .eq('organization_id', profile?.organization_id)
+  // If user has no profile / org assignment yet, show empty state
+  let hotels: any[] = []
+  if (profile?.organization_id) {
+    const { data: hotelsData } = await supabase
+      .from('hotels')
+      .select('*, rooms(count), users(count)')
+      .eq('organization_id', profile.organization_id)
 
-  const hotels = (hotelsData || []).map((h: any) => ({
-    id: h.id,
-    organizationId: h.organization_id,
-    name: h.name,
-    address: h.address,
-    timezone: h.timezone,
-    logoUrl: h.logo_url,
-    status: h.status,
-    deletedAt: h.deleted_at,
-    createdAt: h.created_at,
-    updatedAt: h.updated_at,
-    // Add virtual fields for the Card
-    totalRooms: h.rooms?.[0]?.count || 0,
-    activeStaff: h.users?.[0]?.count || 0
-  }))
+    hotels = (hotelsData || []).map((h: any) => ({
+      id: h.id,
+      organizationId: h.organization_id,
+      name: h.name,
+      address: h.address,
+      timezone: h.timezone,
+      logoUrl: h.logo_url,
+      status: h.status,
+      deletedAt: h.deleted_at,
+      createdAt: h.created_at,
+      updatedAt: h.updated_at,
+      totalRooms: h.rooms?.[0]?.count || 0,
+      activeStaff: h.users?.[0]?.count || 0
+    }))
+  }
 
   return (
     <>
@@ -98,11 +101,31 @@ export default async function HotelsPage() {
         </div>
 
         {/* Property Grid */}
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
-          {hotels.map(hotel => (
-            <HotelCard key={hotel.id} hotel={hotel} />
-          ))}
-        </div>
+        {hotels.length > 0 ? (
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+            {hotels.map(hotel => (
+              <HotelCard key={hotel.id} hotel={hotel} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-border-light flex items-center justify-center mb-4">
+              <Search className="w-8 h-8 text-text-muted" />
+            </div>
+            <h3 className="text-lg font-semibold text-text-primary mb-1">No properties found</h3>
+            <p className="text-text-secondary text-sm mb-6 max-w-sm">
+              {profile?.organization_id
+                ? 'No hotels have been added to your organization yet.'
+                : 'Your account is not linked to an organization. Please contact your administrator.'}
+            </p>
+            {profile?.organization_id && (
+              <Link href="/hotels/new" className="btn-primary">
+                <Plus className="w-4 h-4" />
+                Add First Property
+              </Link>
+            )}
+          </div>
+        )}
       </main>
     </>
   )
