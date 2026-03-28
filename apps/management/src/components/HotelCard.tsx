@@ -4,6 +4,7 @@ import { Building2, Users, ArrowRight, Settings, MapPin } from 'lucide-react'
 interface HotelCardProps {
   id: string
   name: string
+  slug: string
   address: string
   logoUrl: string
   totalRooms: number
@@ -50,11 +51,11 @@ export function HotelCard({ hotel }: { hotel: HotelCardProps }) {
         </div>
         
         <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-border-light">
-          <Link href={`/hotels/${hotel.id}`} className="btn-secondary w-full justify-center text-sm">
+          <Link href={`/hotels/${hotel.slug}`} className="btn-secondary w-full justify-center text-sm">
              <Settings className="w-4 h-4" />
              Manage
           </Link>
-          <Link href={`/hotels/${hotel.id}/rooms`} className={`btn-primary w-full justify-center text-sm ${!isActive ? 'opacity-50 pointer-events-none' : ''}`}>
+          <Link href={`/hotels/${hotel.slug}/rooms`} className={`btn-primary w-full justify-center text-sm ${!isActive ? 'opacity-50 pointer-events-none' : ''}`}>
              Dashboard
              <ArrowRight className="w-4 h-4 ml-1" />
           </Link>

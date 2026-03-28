@@ -33,6 +33,7 @@ export default async function HotelsPage() {
       id: h.id,
       organizationId: h.organization_id,
       name: h.name,
+      slug: h.slug,
       address: h.address,
       timezone: h.timezone,
       logoUrl: h.logo_url,

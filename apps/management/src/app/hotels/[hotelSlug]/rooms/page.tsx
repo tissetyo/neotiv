@@ -3,7 +3,7 @@ import { Building2, LayoutDashboard, Users, DoorOpen, Settings as SettingsIcon, 
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
-export default async function RoomManagementPage({ params }: { params: { hotelId: string } }) {
+export default async function RoomManagementPage({ params }: { params: { hotelSlug: string } }) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
   const user = session?.user
@@ -16,7 +16,7 @@ export default async function RoomManagementPage({ params }: { params: { hotelId
   const { data: hotel } = await supabase
     .from('hotels')
     .select('*')
-    .eq('id', params.hotelId)
+    .eq('slug', params.hotelSlug)
     .single()
 
   if (!hotel) return notFound()
@@ -26,12 +26,12 @@ export default async function RoomManagementPage({ params }: { params: { hotelId
     supabase
       .from('room_types')
       .select('*')
-      .eq('hotel_id', params.hotelId)
+      .eq('hotel_id', hotel.id)
       .order('name'),
     supabase
       .from('rooms')
       .select('*, room_types(name)')
-      .eq('hotel_id', params.hotelId)
+      .eq('hotel_id', hotel.id)
       .order('number')
   ])
 
@@ -53,16 +53,16 @@ export default async function RoomManagementPage({ params }: { params: { hotelId
           
           {/* Navigation Tabs */}
           <div className="flex items-center gap-1">
-            <Link href={`/hotels/${hotel.id}`} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
+            <Link href={`/hotels/${hotel.slug}`} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
               <LayoutDashboard className="w-4 h-4" /> Overview
             </Link>
-            <Link href={`/hotels/${hotel.id}/rooms`} className="px-4 py-2 text-sm font-bold bg-accent/10 text-accent rounded-lg flex items-center gap-2">
+            <Link href={`/hotels/${hotel.slug}/rooms`} className="px-4 py-2 text-sm font-bold bg-accent/10 text-accent rounded-lg flex items-center gap-2">
               <DoorOpen className="w-4 h-4" /> Rooms
             </Link>
-            <Link href={`/hotels/${hotel.id}/services`} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
+            <Link href={`/hotels/${hotel.slug}/services`} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
               <Settings className="w-4 h-4" /> Services
             </Link>
-            <Link href={`/hotels/${hotel.id}/staff`} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
+            <Link href={`/hotels/${hotel.slug}/staff`} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-2">
               <Users className="w-4 h-4" /> Staff Access
             </Link>
           </div>

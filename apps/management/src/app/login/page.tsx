@@ -100,8 +100,11 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-xs text-text-muted">For authorized administrators only</p>
+            <p className="text-sm text-text-muted">
+              Don't have an account? <a href="/register" className="text-primary font-medium hover:underline">Register your hotel</a>
+            </p>
           </div>
         </div>
       </div>

@@ -11,7 +11,7 @@ const iconMap: Record<string, any> = {
   other: Sparkles
 }
 
-export default async function HotelServicesPage({ params }: { params: { hotelId: string } }) {
+export default async function HotelServicesPage({ params }: { params: { hotelSlug: string } }) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
   const user = session?.user
@@ -23,8 +23,8 @@ export default async function HotelServicesPage({ params }: { params: { hotelId:
   // Fetch hotel details
   const { data: hotel } = await supabase
     .from('hotels')
-    .select('name')
-    .eq('id', params.hotelId)
+    .select('id, name, slug')
+    .eq('slug', params.hotelSlug)
     .single()
 
   if (!hotel) notFound()
@@ -33,7 +33,7 @@ export default async function HotelServicesPage({ params }: { params: { hotelId:
   const { data: services } = await supabase
     .from('hotel_services')
     .select('*')
-    .eq('hotel_id', params.hotelId)
+    .eq('hotel_id', hotel.id)
     .order('category')
 
   return (
@@ -41,7 +41,7 @@ export default async function HotelServicesPage({ params }: { params: { hotelId:
       <div className="mb-8 flex items-center gap-2 text-sm text-text-muted">
         <Link href="/hotels" className="hover:text-primary transition-colors">Properties</Link>
         <ChevronRight className="w-4 h-4" />
-        <Link href={`/hotels/${params.hotelId}`} className="hover:text-primary transition-colors">{hotel.name}</Link>
+        <Link href={`/hotels/${hotel.slug}`} className="hover:text-primary transition-colors">{hotel.name}</Link>
         <ChevronRight className="w-4 h-4" />
         <span className="text-text-primary font-medium">Services</span>
       </div>
